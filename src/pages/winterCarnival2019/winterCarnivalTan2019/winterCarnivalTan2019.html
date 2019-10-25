@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>冬日狂欢</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="format-detection" content="telephone=no">
+<%for(var i in htmlWebpackPlugin.files.css){ %>
+  <link href="<%= htmlWebpackPlugin.files.css[i].replace(/css\/winterCarnival2019/i, 'https://xcss.kuwo.cn/kuwolive/alone/huodong') %>" rel="stylesheet"></head>
+<%}%>
+  <script>
+    document.documentElement.style.fontSize = document.documentElement.clientWidth / 7.5 + 'px';
+  </script>
+</head>
+<body>
+<div id="app">
+</div>
+<%for(var i in htmlWebpackPlugin.files.js){ %>
+  <script type="text/javascript" src="<%= htmlWebpackPlugin.files.js[i].replace(/js/i, 'https://s1j.kuwo.cn/kuwolive/alone').replace(/winterCarnival2019\//, '') %>"></script>
+<%}%>
+</body>
+</html>
