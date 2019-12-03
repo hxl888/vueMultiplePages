@@ -35,6 +35,38 @@ var commonUtil = {
     }
     return num;
   },
+  throttle(func, delay) {
+    var timer = null;
+    var startTime = Date.now();
+    return function() {
+      var curTime = Date.now();
+      var remaining = delay - (curTime - startTime);
+      var context = this;
+      var args = arguments;
+      clearTimeout(timer);
+      if (remaining <= 0) {
+        func.apply(context, args);
+        startTime = Date.now();
+      } else {
+        timer = setTimeout(func, remaining);
+      }
+    };
+  },
+  debounce(fn, delay) {
+    let delays = delay || 500;
+    let timer;
+    return function() {
+      let th = this;
+      let args = arguments;
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(function() {
+        timer = null;
+        fn.apply(th, args);
+      }, delays);
+    };
+  },
   versionfunegt: function(ver1, ver2) {
     var version1pre = parseFloat(ver1);
     var version2pre = parseFloat(ver2);
@@ -95,10 +127,8 @@ var commonUtil = {
     // 活动等级勋章
     flag = flag || false;
     if (!badgeId)
-      return (
-        location.protocol +
-        '//imagexc.kuwo.cn/kuwolive/huodong/h5winterlove2019/mobile/badgeNone.png'
-      );
+      // return '//imagexc.kuwo.cn/kuwolive/huodong/winterCarnival2019pc/0.png'
+      return '//imagexc.kuwo.cn/kuwolive/huodong/winterCarnival2019pc/0.png';
     if (flag) {
       // 小图
       return '//imagexc.kuwo.cn/kuwolive/badge/' + badgeId + '_s.png?';
@@ -175,7 +205,45 @@ var commonUtil = {
 
     return str;
   },
-  dateFormat: function(dateTime, flag) {
+  countdown(min, sec, txtCallback, callback) {
+    var _this = this;
+    var minHtml = '';
+    var secHtml = '';
+
+    var run = function() {
+      if (min == 0 && sec == 0) {
+        minHtml = '00';
+        secHtml = '00';
+        if (_this.counter) {
+          clearInterval(_this.counter);
+        }
+        if (callback && typeof callback == 'function') {
+          // 随机数防止 倒计时结束同时向服务请求、服务器承载过大！！！（1s 到 5s 之前的随机数 分批去请求接口）
+          var downRanDomTime = _this.getRandomNumber(1000, 5000);
+          setTimeout(function() {
+            callback();
+          }, downRanDomTime);
+        }
+      } else if (min >= 0) {
+        if (sec > 0) {
+          sec--;
+        } else if (sec == 0) {
+          min--;
+          sec = 59;
+        }
+        minHtml = _this.handleTime(min);
+        secHtml = _this.handleTime(sec);
+      }
+      txtCallback && txtCallback(`${minHtml}:${secHtml}`);
+      // _this.downTimeHtml = `${minHtml}:${secHtml}`;
+    };
+    if (_this.counter) {
+      clearInterval(_this.counter);
+    }
+    _this.counter = setInterval(run, 1000);
+  },
+  dateFormat: function(dateTime, flag, str) {
+    var strs = str ? str : '/';
     if (typeof dateTime === 'number') {
       var oDate = new Date(dateTime * 1000);
       var year = oDate.getFullYear();
@@ -196,13 +264,13 @@ var commonUtil = {
           ? oDate.getSeconds()
           : '0' + oDate.getSeconds();
       if (flag) {
-        return year + '/' + month + '/' + date;
+        return year + strs + month + strs + date;
       } else {
         return (
           year +
-          '/' +
+          strs +
           month +
-          '/' +
+          strs +
           date +
           ' ' +
           hours +

@@ -21,6 +21,11 @@ try {
 }
 
 var enterDataNameDir = JSON.parse(authPathsFile).entryDir;
+console.log(
+  '%centerDataNameDir: ',
+  'color: MidnightBlue; background: Aquamarine; font-size: 20px;',
+  enterDataNameDir
+);
 
 let sshConfig = JSON.parse(sshConfigStr);
 var gulpSSH = new GulpSSH({

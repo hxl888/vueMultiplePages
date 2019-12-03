@@ -38,7 +38,6 @@ module.exports = {
     alias: {
       vue$: "vue/dist/vue.esm.js",
       "@": resolve("src"),
-      src: path.resolve(__dirname, "../src"),
       common: path.resolve(__dirname, "../src/common"),
       components: path.resolve(__dirname, "../src/components")
     }
@@ -47,47 +46,43 @@ module.exports = {
     rules: [
       ...(config.dev.useEslint ? [createLintingRule()] : []),
       {
+        test: /\.(js|vue)$/,
+        loader: 'eslint-loader',
+        enforce: 'pre',
+        include: [resolve('src'), resolve('test')],
+        options: {
+          formatter: require('eslint-friendly-formatter')
+        }
+      },
+      {
         test: /\.vue$/,
-        loader: "vue-loader",
+        loader: 'vue-loader',
         options: vueLoaderConfig
       },
       {
         test: /\.js$/,
-        loader: "babel-loader",
-        include: [
-          resolve("src"),
-          resolve("test"),
-          resolve("node_modules/webpack-dev-server/client")
-        ],
-        //  exclude: file => /test/.test(file), // 排除test目录文件
-        //  loader: "happypack/loader?id=happy-babel" // 后面会介绍
+        loader: ['babel-loader?cacheDirectory=true'],
+        include: [resolve('src'), resolve('test'), resolve('node_modules/vue-ueditor/src')]
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        loader: "url-loader",
+        test: /\.(png|jpe?g|gif)(\?.*)?$/,
+        loader: 'url-loader',
         options: {
-          limit: 10000,
-          name: utils.assetsPath("img/[name].[hash:7].[ext]")
+          limit: 1000,
+          name: utils.assetsPath('img/[name].[hash:7].[ext]')
         }
       },
       {
-        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-        loader: "url-loader",
+        test: /\.(woff2?|eot|ttf|otf|svg)(\?.*)?$/,
+        loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath("media/[name].[hash:7].[ext]")
-        }
-      },
-      {
-        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        loader: "url-loader",
-        options: {
-          limit: 10000,
-          name: utils.assetsPath("fonts/[name].[hash:7].[ext]")
+          name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
       }
     ]
   },
+  plugins: [],
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue
     // source contains it (although only uses it if it's native).

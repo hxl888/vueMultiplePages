@@ -10,10 +10,10 @@
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:8080
+# serve with hot reload at localhost:8081
 npm run dev (需要手动打开浏览器地址)
 
-手动打开例如: http://localhost:8080/pages/index.html || http://localhost:8080/winterCarnival2019/winterCarnivalPendant2019.html
+手动打开例如: http://localhost:8081/pages/index.html || http://localhost:8081/annualCeremony2019/annualCeremonyPendant2019.html
 
 # build for production with minification
 npm run test

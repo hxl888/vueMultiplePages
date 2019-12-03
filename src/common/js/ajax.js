@@ -8,13 +8,11 @@ import axios from 'axios';
 // };
 var ajax = {
   //请求后台接口
-  callZhiboServer: function(url, callbackName) {
-    // var randomNum = RandomNumBoth(100, 800);
-    // setTimeout(function() {}, randomNum);
-    url = url + '&klivesource=alone&r=' + Math.random();
+  callZhiboServer: function(url, callback) {
     var jsonpUrl = CONFIG.KUWOLIVE_SERVICE + url + '&r=' + Math.random();
     return new Promise(function(resolve) {
-      var _url = jsonpUrl + '&callback=' + callbackName;
+      var _url = jsonpUrl + '&callback=' + callback;
+      var callbackName = callback;
       var head = document.getElementsByTagName('head')[0];
       //设置传递给后台的回调参数名
       var script = document.createElement('script');
@@ -23,7 +21,7 @@ var ajax = {
       window[callbackName] = function(json) {
         resolve(json);
         head.removeChild(script);
-        // clearTimeout(script.timer);
+        clearTimeout(script.timer);
         window[callbackName] = null;
       };
       script.src = _url;
@@ -31,12 +29,14 @@ var ajax = {
   },
   //请求Web端接口
   callWebServer: function(url, callback) {
+    // axios.defaults.baseURL = 'https://jx.kuwo.cn/';
     if (url.indexOf('?') > 0) {
       url = url + '&r=' + Math.random();
     } else {
       url = url + '?r=' + Math.random();
     }
     var domain = '//' + window.location.host + '/KuwoLive/';
+    // var domain = 'https://jx.kuwo.cn/KuwoLive/';
     axios({
       method: 'get',
       dataType: 'json',

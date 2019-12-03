@@ -7,9 +7,23 @@
 
 <script>
 import 'common/css/reset.css';
-
+// import ajax from 'common/js/ajax';
 export default {
-  name: 'app'
+  name: 'app',
+  data() {
+    return {};
+  },
+  created() {
+    // this.pendant();
+  },
+  methods: {
+    pendant() {
+      // let queryUrl = `activity/annualCeremony20191206?fun=defPendant&tid=888&userround=2020&ffround=1`;
+      // ajax.callWebServer(queryUrl, function(res) {
+      //   console.log('res: ', res);
+      // });
+    }
+  }
 };
 </script>
 

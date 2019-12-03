@@ -14,7 +14,7 @@ if (isAndroid) {
 } else {
   OSFlag = true;
 }
-
+window.OSFlag = OSFlag;
 var isLogin = false; //true已登录        false未登录
 
 /**
@@ -34,6 +34,7 @@ var enterInfo;
 var myinfoObj;
 var appSrc = ''; //iphone_jx(iphone独立版) android_jx(android独立版) iphone_mbox(iphone航母版) android_mbox(android航母版)
 var appVersion = '';
+var jsVersion = null; // 此变量（因为安卓航母版 每次增加h5协议之后不能通过appVersion 版本号进行区分是否调取对应的 so 新增此变量）
 
 var h5SinginInfo = ''; //签到token
 
@@ -82,6 +83,7 @@ function getMyInfoObjCallBack(data) {
   } else {
     isLogin = false;
   }
+  window.isLogin = isLogin;
 }
 
 //ios获取用户信息回调
@@ -91,9 +93,11 @@ function iosMyInfoObjCallback(data) {
     macid = myinfoObj.SSID || macid;
     //alert(JSON.stringify(myinfoObj.user));
     isLogin = true;
+    window.macid = macid;
   } else {
     isLogin = false;
   }
+  window.isLogin = isLogin;
 }
 window.getMyInfoObjCallBack = getMyInfoObjCallBack;
 window.iosMyInfoObjCallback = iosMyInfoObjCallback;
@@ -108,6 +112,7 @@ var getAppSrc = function() {
     //window.location.href = "kwip://kwplayerhd/getversion";
     var iosVersionCallback = window.jscObj.getVersionInfo(); //ios回调用户返回版本号，该版本号可以用于区分独立版或者航母版
     appSrc = iosVersionCallback.src;
+    window.appSrc = appSrc;
     // window.appSrc = appSrc;
   } else {
     //appSrc = "android_jx";
@@ -122,12 +127,14 @@ var versionCallBack = function(data) {
   var data = eval('(' + data + ')');
   appSrc = data.src;
   macid = data.macid || macid;
+  window.macid = macid;
+  window.appSrc = appSrc;
 };
 
 //ios回调用户返回版本号，该版本号可以用于区分独立版或者航母版
 var iosGetVersionCallback = function(data) {
   appSrc = data.src;
-  // window.appSrc = appSrc;
+  window.appSrc = appSrc;
 };
 window.versionCallBack = versionCallBack;
 window.iosGetVersionCallback = iosGetVersionCallback;
@@ -141,6 +148,7 @@ function getAppVersion() {
   if (OSFlag) {
     var iosVersionCallback = window.jscObj.getVersionInfo(); //ios回调用户返回版本号，该版本号可以用于区分独立版或者航母版
     appVersion = iosVersionCallback.version;
+    window.appVersion = appVersion;
   } else {
     var jsonstr =
       '{"action":"control_getversion","callback":"appVersionCallBack"}';
@@ -152,6 +160,9 @@ function appVersionCallBack(data) {
   //安卓获取版本号回调
   var data = eval('(' + data + ')');
   appVersion = data.version;
+  jsVersion = data.jsversion;
+  window.appVersion = appVersion;
+  window.jsVersion = parseFloat(jsVersion);
 }
 window.appVersionCallBack = appVersionCallBack;
 getAppSrc();
@@ -183,6 +194,9 @@ function getMyInfoCallBack(data) {
   if (user.coin) {
     coin = user.coin;
   }
+  window.secrectname = secrectname;
+  window.logintype = logintype;
+  window.coin = coin;
 }
 window.androidCallback = androidCallback;
 window.getMyInfoCallBack = getMyInfoCallBack;
@@ -198,6 +212,9 @@ function iosMyInfoCallback(data) {
   if (data.coin) {
     coin = data.coin;
   }
+  window.secrectname = secrectname;
+  window.logintype = logintype;
+  window.coin = coin;
 }
 
 //iOS充值回调
@@ -241,6 +258,7 @@ function loginReload(data) {
 
 function getSinginTokenCallback(data) {
   h5SinginInfo = data;
+  window.h5SinginInfo = h5SinginInfo;
 }
 
 function roomCacheCallBack(data) {
@@ -260,6 +278,7 @@ function appCacheCallBack(data) {
 function getMyInfoAndEnterInfoCallBack(data) {
   var jsonData = JSON.parse(data);
   myInfoAndEnterInfoData = jsonData;
+  window.myInfoAndEnterInfoData = myInfoAndEnterInfoData;
 }
 
 /**********************与音乐盒相关模块*************************/
@@ -357,6 +376,8 @@ function feedback_deviceinfo(data) {
   var heversion1 = heversion.split('_');
   isAppSrc = heversion1[2].slice(0, 5);
   fromHead = true;
+  window.fromHead = fromHead;
+  window.isAppSrc = isAppSrc;
 }
 
 /**********************与音乐盒相关模块*************************/
@@ -601,20 +622,6 @@ var appcom = {
       window.KuwoInterface.jsCallNative(openDilogParam);
     }
   },
-  bottomDilogOpen: function(url, index) {
-    //房间内 半屏弹窗展示，会显示在APP页面最下面由下而上滑动上来
-    if (OSFlag) {
-      window.jscObj.presentH5PageWithUrl(url);
-    } else {
-      var openDilogParam =
-        '{"action":"control_presentH5PageWithUrl","url":"' +
-        url +
-        '","index":"' +
-        index +
-        '"}';
-      window.KuwoInterface.jsCallNative(openDilogParam);
-    }
-  },
   //index标识弹框的唯一标识; iosVersion用来兼容ios前期不支持关闭弹窗的方法
   dilogClose: function(index, iosVersion) {
     if (OSFlag) {
@@ -725,7 +732,7 @@ var appcom = {
     }
   },
   addRoomCache: function(key, value) {
-    //app房间内缓存存储，对本房间内有效，离开房间失效
+    //app房间内缓存存储，对本房间内有效，离开房间失效 （key value 必须为string类型 否则会造成app进房页面奔溃）
     if (OSFlag) {
       window.jscObj.setNativeValue(value, key);
     } else {
@@ -753,7 +760,7 @@ var appcom = {
     }
   },
   addAppCache: function(key, value) {
-    //存储app级别缓存
+    //存储app级别缓存 （key value 必须为string类型 否则会造成app进房页面奔溃）
     if (OSFlag) {
       window.jscObj.setAppNativeValue(value, key);
     } else {
@@ -767,7 +774,7 @@ var appcom = {
     }
   },
   getAppCache: function(key) {
-    //获取app级别缓存
+    //获取app级别缓存 （key value 必须为string类型 否则会造成app进房页面奔溃）
     if (OSFlag) {
       var cache = window.jscObj.getAppNativeValueByKey(key);
       appCache[key] = cache;
@@ -973,6 +980,7 @@ var appcom = {
   getMyInfoAndEnterInfo: function() {
     if (OSFlag) {
       myInfoAndEnterInfoData = window.jscObj.getMyInfoAndEnterRoomInfo();
+      window.myInfoAndEnterInfoData = myInfoAndEnterInfoData;
     } else {
       var jsonstr =
         '{"action":"controlGetMyInfo_EnterInfo","callback":"getMyInfoAndEnterInfoCallBack"}';
@@ -1037,6 +1045,23 @@ var appcom = {
       } catch (error) {}
     }
   },
+  versionfunegt: function(ver1, ver2) {
+    var version1pre = parseFloat(ver1);
+    var version2pre = parseFloat(ver2);
+    var version1next = ver1.replace(version1pre + '.', '');
+    var version2next = ver2.replace(version2pre + '.', '');
+    if (version1pre > version2pre) {
+      return true;
+    } else if (version1pre < version2pre) {
+      return false;
+    } else {
+      if (version1next >= version2next) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  },
   // 进房间
   goRooms: function(roomId) {
     var _this = appcom;
@@ -1077,24 +1102,143 @@ var appcom = {
     } else {
       call && call();
     }
+  },
+  applyH5Pendant: function(type, url) {
+    //创建挂件
+    if (OSFlag) {
+      window.jscObj.applyH5Pendant(type, url);
+    } else {
+      var jsonstr =
+        '{"action":"control_applyH5Pendant","type":"' +
+        type +
+        '","url":"' +
+        url +
+        '"}';
+      window.KuwoInterface.jsCallNative(jsonstr);
+    }
+  },
+  applyH5MorePendant: function(type, url) {
+    //创建挂件 与applyH5Pendant 方法的去呗是安卓url：后面少加了两个“”
+    if (OSFlag) {
+      window.jscObj.applyH5Pendant(type, url);
+    } else {
+      var jsonstr =
+        '{"action":"control_applyH5Pendant","type":"' +
+        type +
+        '","url":' +
+        url +
+        '}';
+      window.KuwoInterface.jsCallNative(jsonstr);
+    }
+  },
+  closeH5Pendant: function(type) {
+    //销毁挂件
+    if (OSFlag) {
+      window.jscObj.closeH5Pendant(type);
+    } else {
+      var jsonstr = '{"action":"control_closeH5Pendant","type":"' + type + '"}';
+      window.KuwoInterface.jsCallNative(jsonstr);
+    }
+  },
+  versionfunegt: function(ver1, ver2) {
+    var version1pre = parseFloat(ver1);
+    var version2pre = parseFloat(ver2);
+    var version1next = ver1.replace(version1pre + '.', '');
+    var version2next = ver2.replace(version2pre + '.', '');
+    if (version1pre > version2pre) {
+      return true;
+    } else if (version1pre < version2pre) {
+      return false;
+    } else {
+      if (version1next >= version2next) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  },
+  // 此方法为版本新加协议控制（原生底部弹框对应的app版本号控制）
+  bottomDilogFlag: function() {
+    var _this = appcom;
+    if (appSrc == 'iphone_mbox') {
+      //ios 航母版
+      // 航母版没有新老版本兼容问题
+      return true;
+    } else if (appSrc == 'iphone_jx') {
+      //ios 独立版
+      // return _this.versionfunegt(appVersion, '5.4.1');
+      return _this.versionfunegt(appVersion, '5.2.1');
+    } else if (appSrc == 'android_mbox') {
+      //android 航母版
+      // 航母版没有新老版本兼容问题  需要通过 jsVersion 进行版本判断 是否调取协议
+      return true;
+      // return jsVersion == 1 || false;
+    } else if (appSrc == 'android_jx') {
+      //android 独立版
+      return _this.versionfunegt(appVersion, '5.5.0.0');
+      // return _this.versionfunegt(appVersion, '5.3.0.0');
+    }
+  },
+  changeH5Pendant: function(type, operate, Id) {
+    /**
+     * 单个挂件刷新(8号挂件位)
+     * @param type 挂件类型:int
+     * @param operate 做操类型:int (1:刷新 2:销毁)
+     * @param Id 挂件Id:int
+     */
+    if (OSFlag) {
+      window.jscObj.changeH5Pendant(type, operate, Id);
+    } else {
+      var changeH5PendantParam =
+        '{"action":"control_changeH5Pendant","type":"' +
+        type +
+        '","operate":"' +
+        operate +
+        '","id":"' +
+        Id +
+        '"}';
+      window.KuwoInterface.jsCallNative(changeH5PendantParam);
+    }
+  },
+  replaceH5Pendant: function(type, urlStr) {
+    /**
+     * 单个挂件替换 (8号轮播挂件位)
+     * @param type 挂件类型:int
+     * @param param url 挂件信息: String 例如（'{id: 8, url: ''}'）
+     */
+    if (OSFlag) {
+      window.jscObj.replaceH5Pendant(type, urlStr);
+    } else {
+      var replaceH5PendantParam =
+        '{"action":"control_replaceH5Pendant","type":"' +
+        type +
+        '","url":"' +
+        urlStr +
+        '"}';
+      window.KuwoInterface.jsCallNative(replaceH5PendantParam);
+    }
+  },
+  bottomDilogOpen: function(url, index) {
+    //房间内 半屏弹窗展示，会显示在APP页面最下面由下而上滑动上来
+    if (OSFlag) {
+      window.jscObj.presentH5PageWithUrl(url);
+    } else {
+      var openDilogParam =
+        '{"action":"control_presentH5PageWithUrl","url":"' +
+        url +
+        '","index":"' +
+        index +
+        '"}';
+      window.KuwoInterface.jsCallNative(openDilogParam);
+    }
   }
 };
 
-window.isAppSrc = isAppSrc;
-window.fromHead = fromHead;
-window.OSFlag = OSFlag;
-window.isLogin = isLogin;
-window.macid = macid;
-// window.uid = uid;
-// window.websid = websid;
-window.secrectname = secrectname;
-window.logintype = logintype;
-window.roomid = roomid;
-window.coin = coin;
-window.appSrc = appSrc;
-window.appVersion = appVersion;
-window.h5SinginInfo = h5SinginInfo;
-window.myInfoAndEnterInfoData = myInfoAndEnterInfoData;
+// window.OSFlag = OSFlag;
+// window.appSrc = appSrc;
+// window.appVersion = appVersion;
+// window.h5SinginInfo = h5SinginInfo;
+// window.myInfoAndEnterInfoData = myInfoAndEnterInfoData;
 
 window.swfInvoke = swfInvoke;
 window.androidNotifty = androidNotifty;

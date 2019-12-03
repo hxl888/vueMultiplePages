@@ -43,7 +43,7 @@ var versionCallBack_config = function(data) {
   var data = eval('(' + data + ')');
   appSrc = data.src;
 };
-
+window.versionCallBack_config = versionCallBack_config;
 getAppSrc_config();
 
 var CONFIG = {
