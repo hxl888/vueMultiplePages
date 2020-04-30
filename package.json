@@ -62,7 +62,7 @@
     "html-webpack-plugin": "^2.30.1",
     "http-proxy-middleware": "^0.20.0",
     "inquirer": "^7.0.0",
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.0",
     "nightwatch": "^0.9.12",
     "node-notifier": "^5.1.2",
     "onchange": "^6.1.0",
